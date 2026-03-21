@@ -203,7 +203,7 @@ Built by **Team HealthLink** in under 6 hours at the 2025 David Eccles School of
 | Name | Role |
 |---|---|
 | Athavan Elangko | Developer |
-| Bethan Chung | Developer |
+| Bethany Chung | Developer |
 | RJ Spratling | Developer |
 | Joe Milner | Developer |
 
