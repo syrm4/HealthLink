@@ -1,7 +1,7 @@
 <footer>
     <div class="container">
         <div class="footer-logo">
-            <img src="/assets/images/ihcHEALTHLINK.png" alt="HealthLink">
+            <img src="<?= BASE_PATH ?>/assets/images/ihcHEALTHLINK.png" alt="HealthLink">
         </div>
         <p>HealthLink &mdash; Community Health Request Management System</p>
         <p>A prototype built for the Intermountain Health Community Health team.</p>

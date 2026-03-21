@@ -1,6 +1,5 @@
 <?php
 // HealthLink — Auth helpers
-// W3Schools best practices: session guard, role checks, password_verify()
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -12,15 +11,12 @@ function is_logged_in(): bool {
 
 function require_login(): void {
     if (!is_logged_in()) {
-        header('Location: /index.php');
+        require_once __DIR__ . '/../config/db.php';
+        header('Location: ' . BASE_PATH . '/index.php');
         exit;
     }
 }
 
-/**
- * Require one of the given roles. Redirects to login if not logged in,
- * returns 403 if role does not match.
- */
 function require_role(string ...$roles): void {
     require_login();
     if (!in_array($_SESSION['user_role'] ?? '', $roles, true)) {
@@ -29,22 +25,20 @@ function require_role(string ...$roles): void {
     }
 }
 
-/** Return all current-user session data as an array. */
 function current_user(): array {
     return [
-        'id'    => $_SESSION['user_id']    ?? null,
-        'name'  => $_SESSION['user_name']  ?? null,
-        'role'  => $_SESSION['user_role']  ?? null,
-        'username' => $_SESSION['username'] ?? null,
-        'lang'  => $_SESSION['user_lang']  ?? 'en',
-        'org'   => $_SESSION['user_org']   ?? null,
-        'email' => $_SESSION['user_email'] ?? null,
+        'id'       => $_SESSION['user_id']    ?? null,
+        'name'     => $_SESSION['user_name']  ?? null,
+        'role'     => $_SESSION['user_role']  ?? null,
+        'username' => $_SESSION['username']   ?? null,
+        'lang'     => $_SESSION['user_lang']  ?? 'en',
+        'org'      => $_SESSION['user_org']   ?? null,
+        'email'    => $_SESSION['user_email'] ?? null,
     ];
 }
 
-/** Populate session from a users table row. */
 function login_user(array $user): void {
-    session_regenerate_id(true); // prevent session fixation
+    session_regenerate_id(true);
     $_SESSION['user_id']    = $user['id'];
     $_SESSION['user_name']  = $user['full_name'];
     $_SESSION['user_role']  = $user['role'];
