@@ -48,42 +48,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-<div class="login-wrap">
-    <div class="login-card">
-        <div class="login-brand">HealthLink</div>
-        <div class="login-sub">Community Health Request Management &mdash; Intermountain Healthcare</div>
-        <?php if ($error): ?>
-            <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-        <?php if (isset($_GET['error'])): ?>
-            <div class="alert alert-error">You are not authorized to view that page.</div>
-        <?php endif; ?>
-        <form method="POST">
-            <div class="form-group" style="margin-bottom:14px;">
-                <label class="form-label">Username</label>
-                <input type="text" name="username" placeholder="Enter your username" required autofocus value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
-            </div>
-            <div class="form-group" style="margin-bottom:20px;">
-                <label class="form-label">Password</label>
-                <input type="password" name="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;">Sign in</button>
-        </form>
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-            <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Demo accounts &mdash; password: <strong>HealthLink2025!</strong></p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                <button onclick="fill('maria.gonzalez')" class="btn btn-secondary" style="font-size:11px;padding:5px 8px;">Community partner</button>
-                <button onclick="fill('james.thompson')" class="btn btn-secondary" style="font-size:11px;padding:5px 8px;">Staff</button>
-                <button onclick="fill('sarah.mitchell')" class="btn btn-secondary" style="font-size:11px;padding:5px 8px;">Admin</button>
-                <button onclick="fill('dr.chen')" class="btn btn-secondary" style="font-size:11px;padding:5px 8px;">Leader</button>
-            </div>
+<div class="login-page">
+
+    <!-- Left hero panel -->
+    <div class="login-hero">
+        <div class="login-logo">
+            <img src="/assets/images/ihcHEALTHLINK.png" alt="HealthLink logo">
         </div>
+        <h1>Community Health request management</h1>
+        <p>Streamlining how community partners and internal staff request materials, presentations, and in-person support from Intermountain Health.</p>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="login-form-side">
+
+        <h2>Sign in</h2>
+        <p class="login-subtitle">Enter your username and password to continue.</p>
+
+        <?php if ($error): ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['error'])): ?>
+            <div class="alert alert-danger">You are not authorized to view that page.</div>
+        <?php endif; ?>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">Username <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                    autofocus
+                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>">
+            </div>
+            <div class="form-group">
+                <label for="password">Password <span class="required">*</span></label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </form>
+
+        <hr class="divider">
+
+        <p class="text-small text-muted mb-sm">Demo accounts &mdash; password: <strong>HealthLink2025!</strong></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button onclick="fill('maria.gonzalez')" class="btn btn-secondary btn-sm">Community partner</button>
+            <button onclick="fill('james.thompson')" class="btn btn-secondary btn-sm">Staff</button>
+            <button onclick="fill('sarah.admin')"    class="btn btn-secondary btn-sm">Admin</button>
+            <button onclick="fill('dr.chen')"        class="btn btn-secondary btn-sm">Leader</button>
+        </div>
+
     </div>
 </div>
+
 <script>
 function fill(u) {
-    document.querySelector('[name=username]').value = u;
-    document.querySelector('[name=password]').value = 'HealthLink2025!';
+    document.getElementById('username').value = u;
+    document.getElementById('password').value = 'HealthLink2025!';
 }
 </script>
 </body>
