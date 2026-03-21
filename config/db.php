@@ -1,18 +1,6 @@
 <?php
 // HealthLink — Database connection
-// Reads environment variables if set, otherwise falls back to MAMP defaults.
-//
-// MAMP for Windows defaults:
-//   Host:     localhost
-//   Port:     3306
-//   User:     root
-//   Password: root
-//
-// MAMP for macOS defaults:
-//   Host:     localhost
-//   Port:     8889
-//   User:     root
-//   Password: root
+// Configured for MAMP on macOS (default port 8889, user root, password root)
 //
 // To override any value, set the corresponding environment variable:
 //   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
@@ -21,7 +9,7 @@ function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
         $host = getenv('DB_HOST') ?: 'localhost';
-        $port = getenv('DB_PORT') ?: '3306';   // MAMP Windows default
+        $port = getenv('DB_PORT') ?: '8889';   // MAMP macOS default
         $name = getenv('DB_NAME') ?: 'healthlink';
         $user = getenv('DB_USER') ?: 'root';
         $pass = getenv('DB_PASS') ?: 'root';
@@ -40,8 +28,8 @@ function getDB(): PDO {
             die('<div style="font-family:sans-serif;padding:20px;color:red;">'
                 . '<strong>Database connection failed.</strong><br><br>'
                 . htmlspecialchars($e->getMessage()) . '<br><br>'
-                . '<strong>MAMP Windows:</strong> port 3306, user root, password root<br>'
-                . '<strong>MAMP macOS:</strong> port 8889, user root, password root<br><br>'
+                . 'Expected: <strong>MAMP macOS</strong> — port 8889, user root, password root<br><br>'
+                . 'Check that MAMP is running and Apache + MySQL are both green.<br>'
                 . 'Override with environment variables: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS'
                 . '</div>');
         }

@@ -1,15 +1,16 @@
 <?php
 // HealthLink — One-time database setup
+// Configured for MAMP on macOS (port 8889, user root, password root)
 // Visit http://localhost/setup.php once to initialise the database.
 // Safe to re-run: drops and recreates all tables.
 
 $host = getenv('DB_HOST') ?: 'localhost';
-$port = getenv('DB_PORT') ?: '3306';   // MAMP Windows default (macOS: 8889)
+$port = getenv('DB_PORT') ?: '8889';   // MAMP macOS default
 $name = getenv('DB_NAME') ?: 'healthlink';
 $user = getenv('DB_USER') ?: 'root';
 $pass = getenv('DB_PASS') ?: 'root';
 
-// Step 1: Connect WITHOUT a dbname so we can create the database if needed
+// Step 1: Connect WITHOUT a dbname so we can create the database if it doesn't exist
 try {
     $bootstrap = new PDO(
         "mysql:host=$host;port=$port;charset=utf8mb4",
@@ -17,17 +18,16 @@ try {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
     $bootstrap->exec("CREATE DATABASE IF NOT EXISTS `$name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $bootstrap->exec("USE `$name`");
 } catch (PDOException $e) {
     die('<div style="font-family:sans-serif;padding:20px;color:red;">'
         . '<strong>Could not connect to MySQL.</strong><br><br>'
         . htmlspecialchars($e->getMessage()) . '<br><br>'
-        . '<strong>MAMP Windows:</strong> port 3306 &mdash; make sure MAMP is running.<br>'
-        . '<strong>MAMP macOS:</strong> change DB_PORT to 8889 or update the default in setup.php.'
+        . 'Check that MAMP is running and both Apache and MySQL indicators are green.<br>'
+        . 'Expected port: <strong>8889</strong>, user: <strong>root</strong>, password: <strong>root</strong>'
         . '</div>');
 }
 
-// Step 2: Now get the real PDO connection via getDB() (which also uses the healthlink db)
+// Step 2: Now connect via the shared getDB() helper (includes the healthlink dbname)
 require_once __DIR__ . '/config/db.php';
 $db = getDB();
 
@@ -185,8 +185,7 @@ $samples = [
     [$uid('maria'),'Maria Gonzalez','maria@westsideclinic.org','801-555-0201','Westside Community Clinic',0,
      'Westside Community Day','2025-03-28','West Valley City','84119',60,'Pediatric / families',
      'mailing','Program-specific toolkit','Necesitamos materiales en español también.',
-     'fulfilled','Mailing — bilingual materials needed',
-     5,'Mailing','Spanish materials requested',1],
+     'fulfilled','Mailing — bilingual materials needed',5,'Mailing','Spanish materials requested',1],
     [$uid('james'),'James Thompson','james@imail.org','801-555-0101','Intermountain Healthcare',1,
      'School Wellness Week','2025-04-22','Salt Lake City','84105',200,'Schools / youth',
      'presentation','Behavioral reinforcement tools','For 4 classrooms, need sticker charts.',
@@ -210,8 +209,7 @@ $samples = [
     [$uid('tom'),'Tom Baker','tom@herrimanrec.org','801-555-0207','Herriman Recreation Center',0,
      'Youth Sports Health Day','2025-06-14','Herriman','84096',180,'Schools / youth',
      'mailing','Behavioral reinforcement tools','Ship to rec center front desk.',
-     'submitted','Mailing — youth audience, moderate priority',
-     6,'Mailing',null,1],
+     'submitted','Mailing — youth audience, moderate priority',6,'Mailing',null,1],
     [$uid('david'),'David Park','david@slcschools.org','801-555-0206','SLC School District',0,
      'Bilingual Health Workshop','2025-04-28','West Valley City','84120',75,'General community',
      'presentation','Educational materials','Please provide bilingual presenter if available.',
