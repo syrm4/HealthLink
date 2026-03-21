@@ -1,46 +1,52 @@
 <?php
-function startSession(): void {
-    if (session_status() === PHP_SESSION_NONE) session_start();
+// HealthLink — Auth Helpers
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-function requireLogin(): void {
-    startSession();
-    if (empty($_SESSION['user_id'])) {
-        header('Location: /index.php'); exit;
+function is_logged_in(): bool {
+    return isset($_SESSION['user_id']);
+}
+
+function require_login(): void {
+    if (!is_logged_in()) {
+        header('Location: /index.php');
+        exit;
     }
 }
 
-function requireRole(array $roles): void {
-    requireLogin();
-    if (!in_array($_SESSION['role'] ?? '', $roles)) {
-        header('Location: /index.php?error=unauthorized'); exit;
+function require_role(string ...$roles): void {
+    require_login();
+    if (!in_array($_SESSION['user_role'], $roles)) {
+        http_response_code(403);
+        die('<h2>Access denied.</h2>');
     }
 }
 
-function isLoggedIn(): bool {
-    startSession();
-    return !empty($_SESSION['user_id']);
-}
-
-function currentUser(): array {
-    startSession();
-    return $_SESSION['user'] ?? [];
-}
-
-function formatRequestType(string $type): string {
+function current_user(): array {
     return [
-        'mailing'         => 'Mailing',
-        'presentation'    => 'Presentation',
-        'inperson_support'=> 'In-person support',
-    ][$type] ?? $type;
+        'id'       => $_SESSION['user_id']   ?? null,
+        'name'     => $_SESSION['user_name'] ?? null,
+        'role'     => $_SESSION['user_role'] ?? null,
+        'username' => $_SESSION['username']  ?? null,
+        'lang'     => $_SESSION['user_lang'] ?? 'en',
+        'org'      => $_SESSION['user_org']  ?? null,
+        'email'    => $_SESSION['user_email']?? null,
+    ];
 }
 
-function formatStatus(string $status): string {
-    return ucfirst(str_replace('_', ' ', $status));
+function login_user(array $user): void {
+    $_SESSION['user_id']    = $user['id'];
+    $_SESSION['user_name']  = $user['full_name'];
+    $_SESSION['user_role']  = $user['role'];
+    $_SESSION['username']   = $user['username'];
+    $_SESSION['user_lang']  = $user['preferred_lang'];
+    $_SESSION['user_org']   = $user['organization'];
+    $_SESSION['user_email'] = $user['email'];
 }
 
-function priorityColor(int $score): string {
-    if ($score >= 8) return '#E24B4A';
-    if ($score >= 6) return '#BA7517';
-    return '#639922';
+function logout_user(): void {
+    session_unset();
+    session_destroy();
 }

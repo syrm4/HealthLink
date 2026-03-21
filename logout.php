@@ -1,6 +1,5 @@
 <?php
-session_start();
-session_unset();
-session_destroy();
-header('Location: /index.php');
+require_once 'includes/auth.php';
+logout_user();
+header('Location: index.php');
 exit;

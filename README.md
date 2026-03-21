@@ -1,62 +1,79 @@
 # HealthLink
 
-Community Health Request Management System — Intermountain Healthcare  
-Built for the 2025 GenAI Hackathon, David Eccles School of Business, University of Utah.
+**AI-Powered Community Health Request Management System**
 
-## Stack
-- PHP 8.x
-- MySQL 8.x
-- HTML/CSS (vanilla)
-- Anthropic Claude API (`claude-sonnet-4-6`)
+Built for the 2025 GenAI Hackathon — David Eccles School of Business, University of Utah.
 
-## Quick Start
+---
 
-### 1. Create MySQL database
-```sql
-CREATE DATABASE healthlink CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+## Overview
+
+HealthLink modernizes the Children's Health Community request workflow. Community partners and internal staff submit requests for health education materials, safety devices, and staffed event support through a structured web interface. An AI agent automatically classifies, validates, and routes each request — replacing manual email triage and spreadsheet tracking.
+
+---
+
+## Tech Stack
+
+- **Frontend:** HTML, CSS
+- **Backend:** PHP
+- **Database:** MySQL
+- **AI:** OpenAI GPT-4o
+
+---
+
+## User Roles
+
+| Role | Count | Description |
+|---|---|---|
+| Community partner | 10 | External partners submitting requests |
+| Internal staff | 5 | Intermountain Healthcare staff |
+| Admin | 3 | Community Health operations staff |
+| Leader | 3 | Program managers / leadership |
+
+**Demo password for all users:** `HealthLink2025!`
+
+---
+
+## File Structure
+
+```
+HealthLink/
+├── index.php              # Login page
+├── register.php           # Optional registration
+├── dashboard.php          # Role-based router
+├── logout.php             # Session destroy
+├── views/
+│   ├── community.php      # Maria — request form + status tracking
+│   ├── staff.php          # James — request form + history
+│   ├── admin.php          # Sarah — queue + detail panel
+│   └── leader.php         # Dr. Chen — reporting + analytics
+├── api/
+│   └── classify.php       # GPT-4o classification endpoint
+├── includes/
+│   ├── db.php             # MySQL connection
+│   ├── auth.php           # Session + auth helpers
+│   └── ai.php             # OpenAI API wrapper
+├── assets/
+│   └── style.css          # Shared stylesheet
+└── schema.sql             # Full DB schema + seed data
 ```
 
-### 2. Configure database connection
-Edit `config/db.php` with your MySQL credentials, or set environment variables:
-```
-DB_HOST, DB_NAME, DB_USER, DB_PASS
-```
+---
 
-### 3. Set Anthropic API key
-```bash
-export ANTHROPIC_API_KEY=your_key_here
-```
-Or edit `api/ai_classify.php` directly.
+## Setup
 
-### 4. Run setup
-Start your PHP server and visit `/setup.php` to create tables and seed 21 synthetic users.
+1. Import `schema.sql` into your MySQL database
+2. Copy `includes/db.php` and update your DB credentials
+3. Add your OpenAI API key to `includes/ai.php`
+4. Deploy to any PHP host (XAMPP, WAMP, or live server)
+5. Login with any username from the schema using password `HealthLink2025!`
 
-### 5. Log in
-Visit `/index.php`. Default password for all users: **HealthLink2025!**
+---
 
-## User Accounts
+## AI Features
 
-| Role | Count | Example Username |
-|------|-------|------------------|
-| community | 10 | maria.gonzalez |
-| staff | 5 | james.thompson |
-| admin | 3 | sarah.mitchell |
-| leader | 3 | dr.chen |
-
-## Running Locally
-```bash
-php -S localhost:8080
-```
-Then visit http://localhost:8080
-
-## Features
-- Role-based authentication
-- Community partner request submission (public + optional login)
-- Internal staff portal with request history
-- Admin queue with AI-powered classification and routing
-- Claude AI auto-classifies requests: priority score, routing recommendation, flags
-- Rule-based fallback if API key not set
-- Geographic service area routing (Salt Lake Valley zip codes)
-- Status tracking: Submitted → In Review → Approved → Fulfilled
-- Full audit trail (status_history table)
-- Leader analytics dashboard
+- Auto-classification of request type and fulfillment pathway
+- Geographic routing (zip code service area check)
+- Priority scoring (1-10) based on attendance, urgency, and flags
+- Natural language flag detection (multi-site events, bilingual needs, safety devices)
+- Human-in-the-loop: AI recommends, admin approves
