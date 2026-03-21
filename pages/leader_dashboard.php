@@ -50,9 +50,11 @@ $statusBadge = [
 ];
 $typeLabel = ['mailing'=>'Mailing','presentation'=>'Presentation','inperson_support'=>'In-person support'];
 
+// Header outputs <!DOCTYPE html> — Chart.js must load AFTER this
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
+<!-- Chart.js loaded inside <body>, after the HTML document starts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <div class="page-header">
@@ -89,7 +91,6 @@ require_once __DIR__ . '/../includes/header.php';
 
         <?php if ($tab === 'dashboard'): ?>
 
-        <!-- Metric cards — always visible -->
         <div class="metric-grid">
             <div class="metric-card"><p class="metric-label">Total requests</p><p class="metric-value"><?= $totalCount ?></p><p class="metric-sub">Last <?= $tf ?> days</p></div>
             <div class="metric-card metric-success"><p class="metric-label">Approval rate</p><p class="metric-value"><?= $approvalRate ?>%</p><p class="metric-sub">Approved or fulfilled</p></div>
@@ -208,7 +209,7 @@ require_once __DIR__ . '/../includes/header.php';
 <script>
 var pieChart, lineChart, barChart;
 var pieData = {
-    language: { labels: ['English','Spanish','Portuguese','Chinese','Other'], data: [52,31,7,5,5], colors: ['#4A00E2','#1D9E75','#FF5D55','#7CAFD0','#FFAA45'] },
+    language: { labels: ['English','Spanish','Portuguese','Chinese','Other'], data: [52,31,7,5,5],    colors: ['#4A00E2','#1D9E75','#FF5D55','#7CAFD0','#FFAA45'] },
     age:      { labels: ['Under 18','18-34','35-54','55-64','65+'],           data: [38,22,18,12,10], colors: ['#4A00E2','#1D9E75','#FF5D55','#FFAA45','#7CAFD0'] },
     gender:   { labels: ['Female','Male','Non-binary','Not specified'],        data: [54,33,6,7],     colors: ['#FF5D55','#4A00E2','#7CAFD0','#888780'] }
 };
@@ -231,9 +232,9 @@ window.addEventListener('load', function() {
         lineChart = new Chart(lineCtx.getContext('2d'), {
             type: 'line',
             data: { labels: months, datasets: [
-                { label: 'Inventory (units)', data: [420,390,350,280,240,190], borderColor: '#4A00E2', backgroundColor: 'rgba(74,0,226,0.06)', tension: 0.4, fill: true, pointRadius: 4 },
-                { label: 'Geographic reach (zips)', data: [8,10,11,13,15,18], borderColor: '#00857C', backgroundColor: 'rgba(0,133,124,0.06)', tension: 0.4, fill: true, pointRadius: 4 },
-                { label: 'Staff days', data: [4,6,5,8,9,11], borderColor: '#FFAA45', tension: 0.4, fill: false, borderDash: [4,3], pointRadius: 4 }
+                { label: 'Inventory (units)',      data: [420,390,350,280,240,190], borderColor: '#4A00E2', backgroundColor: 'rgba(74,0,226,0.06)',   tension: 0.4, fill: true,  pointRadius: 4 },
+                { label: 'Geographic reach (zips)',data: [8,10,11,13,15,18],        borderColor: '#00857C', backgroundColor: 'rgba(0,133,124,0.06)',   tension: 0.4, fill: true,  pointRadius: 4 },
+                { label: 'Staff days',             data: [4,6,5,8,9,11],            borderColor: '#FFAA45',                                            tension: 0.4, fill: false, borderDash: [4,3], pointRadius: 4 }
             ]},
             options: { responsive: true, plugins: { legend: { labels: { font: { size: 11 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#f0f0f0' } } } }
         });
@@ -245,7 +246,7 @@ window.addEventListener('load', function() {
         barChart = new Chart(barCtx.getContext('2d'), {
             type: 'bar',
             data: { labels: months, datasets: [
-                { label: 'Staff available (days)', data: [12,14,12,15,13,16], backgroundColor: 'rgba(0,133,124,0.7)', borderRadius: 4 },
+                { label: 'Staff available (days)', data: [12,14,12,15,13,16], backgroundColor: 'rgba(0,133,124,0.7)',   borderRadius: 4 },
                 { label: 'Staff demand (days)',     data: [4,6,5,8,9,11],     backgroundColor: 'rgba(255,170,69,0.7)', borderRadius: 4 }
             ]},
             options: { responsive: true, plugins: { legend: { labels: { font: { size: 11 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#f0f0f0' } } } }
@@ -256,8 +257,8 @@ window.addEventListener('load', function() {
 
 function setPie(type) {
     if (!pieChart) return;
-    pieChart.data.labels = pieData[type].labels;
-    pieChart.data.datasets[0].data = pieData[type].data;
+    pieChart.data.labels                    = pieData[type].labels;
+    pieChart.data.datasets[0].data          = pieData[type].data;
     pieChart.data.datasets[0].backgroundColor = pieData[type].colors;
     pieChart.update();
 }

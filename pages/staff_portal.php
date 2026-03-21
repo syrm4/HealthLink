@@ -72,6 +72,7 @@ require_once __DIR__ . '/../includes/header.php';
 <main class="main-content" style="padding-top:0;">
     <div class="container" style="display:grid; grid-template-columns:220px 1fr; gap:var(--space-lg); padding-top:var(--space-xl);">
 
+        <!-- Sidebar -->
         <aside>
             <div class="metric-card metric-cobalt mb-md">
                 <p class="metric-label">New requests</p>
@@ -85,15 +86,34 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
             <hr class="divider">
             <nav>
-                <?php foreach (['all'=>'All requests','flagged'=>'Flagged','submitted'=>'Submitted','in_review'=>'In review','approved'=>'Approved','fulfilled'=>'Fulfilled'] as $key => $lbl): ?>
+                <?php foreach ([
+                    'all'       => 'All requests',
+                    'flagged'   => 'Flagged',
+                    'submitted' => 'Submitted',
+                    'in_review' => 'In review',
+                    'approved'  => 'Approved',
+                    'fulfilled' => 'Fulfilled',
+                ] as $key => $lbl): ?>
                 <a href="?filter=<?= urlencode($key) ?>" class="btn btn-block btn-<?= $filter === $key ? 'dark' : 'secondary' ?> btn-sm mb-sm"><?= $lbl ?></a>
                 <?php endforeach; ?>
             </nav>
         </aside>
 
+        <!-- Main content -->
         <div>
+            <!-- Filter bar: pills + count + search — consistent with admin dashboard -->
             <div class="filter-bar">
-                <span class="text-muted text-small"><?= count($requests) ?> request<?= count($requests) !== 1 ? 's' : '' ?></span>
+                <?php foreach ([
+                    'all'       => 'All',
+                    'submitted' => 'Submitted',
+                    'in_review' => 'In review',
+                    'approved'  => 'Approved',
+                    'fulfilled' => 'Fulfilled',
+                    'flagged'   => 'Flagged',
+                ] as $key => $lbl): ?>
+                <a href="?filter=<?= urlencode($key) ?>" class="filter-pill <?= $filter === $key ? 'active' : '' ?>"><?= $lbl ?></a>
+                <?php endforeach; ?>
+                <span class="text-muted text-small" style="margin-left:var(--space-sm);"><?= count($requests) ?> result<?= count($requests) !== 1 ? 's' : '' ?></span>
                 <div class="search-box">
                     <form method="GET">
                         <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
@@ -119,13 +139,27 @@ require_once __DIR__ . '/../includes/header.php';
                             $isSel = ($selectedId === (int)$req['id']);
                         ?>
                         <tr class="<?= $isSel ? 'selected' : '' ?>" onclick="location.href='?filter=<?= urlencode($filter) ?>&id=<?= $req['id'] ?>'">
-                            <td><div class="td-name"><?= htmlspecialchars($req['event_name']) ?></div><div class="td-muted"><?= htmlspecialchars($req['requestor_name']) ?> &middot; <?= htmlspecialchars($req['organization']) ?></div></td>
+                            <td>
+                                <div class="td-name"><?= htmlspecialchars($req['event_name']) ?></div>
+                                <div class="td-muted"><?= htmlspecialchars($req['requestor_name']) ?> &middot; <?= htmlspecialchars($req['organization']) ?></div>
+                            </td>
                             <td><span class="badge <?= $tb ?>"><?= htmlspecialchars($tl) ?></span></td>
                             <td><span class="badge <?= $sb['class'] ?>"><?= $sb['label'] ?></span></td>
-                            <td><div class="priority-bar <?= $pc ?>"><div class="priority-track"><div class="priority-fill" style="width:<?= $pct ?>%;"></div></div><small><?= (int)($req['ai_priority_score'] ?? 0) ?></small></div></td>
+                            <td>
+                                <div class="priority-bar <?= $pc ?>">
+                                    <div class="priority-track"><div class="priority-fill" style="width:<?= $pct ?>%;"></div></div>
+                                    <small><?= (int)($req['ai_priority_score'] ?? 0) ?></small>
+                                </div>
+                            </td>
                             <td class="td-muted"><?= htmlspecialchars(date('M j', strtotime($req['event_date']))) ?></td>
                             <td class="td-muted"><?= htmlspecialchars(substr($req['material_category'] ?? '', 0, 18)) ?></td>
-                            <td><?php if (!empty($req['ai_flags'])): ?><span class="ai-flag"><?= htmlspecialchars(substr($req['ai_flags'], 0, 24)) ?></span><?php else: ?><span class="td-muted">None</span><?php endif; ?></td>
+                            <td>
+                                <?php if (!empty($req['ai_flags'])): ?>
+                                <span class="ai-flag"><?= htmlspecialchars(substr($req['ai_flags'], 0, 24)) ?></span>
+                                <?php else: ?>
+                                <span class="td-muted">None</span>
+                                <?php endif; ?>
+                            </td>
                             <td><a href="/pages/admin_dashboard.php?id=<?= $req['id'] ?>" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">Send to admin</a></td>
                         </tr>
                         <?php endforeach; ?>
@@ -136,9 +170,11 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
 
             <?php if ($selected):
-                $att   = (int)($selected['estimated_attendees'] ?? 0);
-                $stype = $selected['request_type'] ?? '';
-                $aiStaff = $att >= 200 ? '4-5 staff recommended' : ($att >= 100 ? '2-3 staff recommended' : ($stype === 'mailing' ? 'No staff — mailing pathway' : '1-2 staff recommended'));
+                $att     = (int)($selected['estimated_attendees'] ?? 0);
+                $stype   = $selected['request_type'] ?? '';
+                $aiStaff = $att >= 200 ? '4-5 staff recommended'
+                         : ($att >= 100 ? '2-3 staff recommended'
+                         : ($stype === 'mailing' ? 'No staff — mailing pathway' : '1-2 staff recommended'));
                 $aiMats  = '~' . $att . ' material packets — ' . ($selected['material_category'] ?? '');
                 $aiRoom  = $stype === 'mailing' ? 'N/A — mailing only' : ($att >= 200 ? 'Large venue / multi-room likely' : 'Standard event space');
                 $aiSetup = $stype === 'mailing' ? 'Packing + shipping est. 1-2 business days' : ($att >= 200 ? '45+ min setup' : '20-30 min setup');
@@ -148,9 +184,11 @@ require_once __DIR__ . '/../includes/header.php';
                     <h3><?= htmlspecialchars($selected['event_name']) ?></h3>
                     <a href="?filter=<?= urlencode($filter) ?>" class="btn btn-secondary btn-sm">Close</a>
                 </div>
+
                 <?php if (!empty($selected['ai_flags'])): ?>
                 <div class="alert alert-danger"><strong>AI flag:</strong> <?= htmlspecialchars($selected['ai_flags']) ?></div>
                 <?php endif; ?>
+
                 <div class="ai-panel mb-md">
                     <p class="ai-panel-title">AI summary</p>
                     <div class="ai-row"><span class="ai-label">Staff prediction</span><span class="ai-value"><?= htmlspecialchars($aiStaff) ?></span></div>
@@ -159,20 +197,22 @@ require_once __DIR__ . '/../includes/header.php';
                     <div class="ai-row"><span class="ai-label">Estimated setup time</span><span class="ai-value"><?= htmlspecialchars($aiSetup) ?></span></div>
                     <div class="ai-row"><span class="ai-label">Routing recommendation</span><span class="ai-value"><?= htmlspecialchars($selected['ai_routing_recommendation'] ?? 'Pending') ?></span></div>
                 </div>
+
                 <div class="form-grid mb-md">
-                    <div><label>Contact</label><p><?= htmlspecialchars($selected['requestor_name']) ?></p></div>
-                    <div><label>Organization</label><p><?= htmlspecialchars($selected['organization']) ?></p></div>
-                    <div><label>Event date</label><p><?= htmlspecialchars(date('F j, Y', strtotime($selected['event_date']))) ?></p></div>
-                    <div><label>Location</label><p><?= htmlspecialchars($selected['city'] . ', ' . $selected['zip_code']) ?></p></div>
-                    <div><label>Participants</label><p><?= (int)$selected['estimated_attendees'] ?></p></div>
-                    <div><label>Items requested</label><p><?= htmlspecialchars($selected['material_category'] ?? '—') ?></p></div>
+                    <div class="form-group"><label>Contact</label><p><?= htmlspecialchars($selected['requestor_name']) ?></p></div>
+                    <div class="form-group"><label>Organization</label><p><?= htmlspecialchars($selected['organization']) ?></p></div>
+                    <div class="form-group"><label>Event date</label><p><?= htmlspecialchars(date('F j, Y', strtotime($selected['event_date']))) ?></p></div>
+                    <div class="form-group"><label>Location</label><p><?= htmlspecialchars($selected['city'] . ', ' . $selected['zip_code']) ?></p></div>
+                    <div class="form-group"><label>Participants</label><p><?= (int)$selected['estimated_attendees'] ?></p></div>
+                    <div class="form-group"><label>Items requested</label><p><?= htmlspecialchars($selected['material_category'] ?? '—') ?></p></div>
                     <?php if (!empty($selected['notes'])): ?>
-                    <div class="form-full"><label>Notes</label><p><?= htmlspecialchars($selected['notes']) ?></p></div>
+                    <div class="form-group form-full"><label>Notes</label><p><?= htmlspecialchars($selected['notes']) ?></p></div>
                     <?php endif; ?>
                 </div>
+
                 <div class="d-flex gap-sm">
                     <a href="/pages/admin_dashboard.php?id=<?= $selected['id'] ?>" class="btn btn-primary">Send to admin (Sarah)</a>
-                    <a href="/api/update_status.php?id=<?= $selected['id'] ?>&status=in_review" class="btn btn-secondary">Mark in review</a>
+                    <a href="?filter=<?= urlencode($filter) ?>" class="btn btn-secondary">Close detail</a>
                 </div>
             </div>
             <?php endif; ?>
