@@ -1,7 +1,7 @@
 <?php
 // HealthLink — One-time database setup
-// Configured for MAMP on macOS (port 8889, user root, password root)
-// Visit http://localhost/setup.php once to initialise the database.
+// MAMP macOS: port 8889, user root, password root
+// Visit http://localhost:8888/HealthLink/setup.php to initialise.
 // Safe to re-run: drops and recreates all tables.
 
 $host = getenv('DB_HOST') ?: 'localhost';
@@ -27,7 +27,7 @@ try {
         . '</div>');
 }
 
-// Step 2: Now connect via the shared getDB() helper (includes the healthlink dbname)
+// Step 2: Now connect via the shared getDB() helper (includes BASE_PATH + healthlink dbname)
 require_once __DIR__ . '/config/db.php';
 $db = getDB();
 
@@ -247,7 +247,7 @@ $allUsers = $db->query('SELECT username, role, full_name, preferred_lang FROM us
 <head>
     <meta charset="UTF-8">
     <title>HealthLink Setup</title>
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="<?= BASE_PATH ?>/assets/style.css">
 </head>
 <body>
 <div class="container">
@@ -271,7 +271,7 @@ $allUsers = $db->query('SELECT username, role, full_name, preferred_lang FROM us
             </table>
         </div>
         <div style="margin-top:var(--space-lg);">
-            <a href="/index.php" class="btn btn-primary">Go to login &rarr;</a>
+            <a href="<?= BASE_PATH ?>/index.php" class="btn btn-primary">Go to login &rarr;</a>
         </div>
     </div>
 </div>
