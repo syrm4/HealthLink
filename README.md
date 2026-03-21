@@ -2,7 +2,7 @@
 
 > AI-Powered Community Health Request Management System
 
-Built for the **2025 GenAI Hackathon** — David Eccles School of Business, University of Utah.
+Built for the **2026 GenAI Hackathon** — David Eccles School of Business, University of Utah.
 
 HealthLink replaces a manual email-and-spreadsheet workflow with a structured, intelligent web application. Community partners submit requests for health education materials, safety devices, and staffed event support. An AI agent automatically classifies, validates, and routes each request to the correct fulfillment pathway — with a human-in-the-loop approval process at every step.
 
