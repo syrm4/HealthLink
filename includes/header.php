@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-startSession();
-$_hlUser = $_SESSION['user'] ?? null;
-$_hlRole = $_SESSION['role'] ?? null;
+
+// auth.php already calls session_start() via its guard.
+// Pull user data from individual session keys set by login_user().
+$_hlUser = is_logged_in() ? current_user() : null;
+$_hlRole = $_hlUser['role'] ?? null;
 
 $roleLabels = [
     'community' => 'Community partner',
@@ -11,6 +13,16 @@ $roleLabels = [
     'leader'    => 'Leadership',
 ];
 $roleLabel = $roleLabels[$_hlRole] ?? ucfirst($_hlRole ?? '');
+
+// Derive initials from name
+$initials = '';
+if ($_hlUser && !empty($_hlUser['name'])) {
+    $parts = explode(' ', trim($_hlUser['name']));
+    $initials = strtoupper(substr($parts[0], 0, 1));
+    if (count($parts) > 1) {
+        $initials .= strtoupper(substr(end($parts), 0, 1));
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,35 +36,32 @@ $roleLabel = $roleLabels[$_hlRole] ?? ucfirst($_hlRole ?? '');
 <nav class="navbar">
     <div class="container">
 
-        <!-- Logo -->
         <a href="/" class="navbar-brand">
             <img src="/assets/images/ihcHEALTHLINK.png" alt="HealthLink">
         </a>
 
-        <!-- Nav links (role-based) -->
         <?php if ($_hlUser): ?>
         <div class="navbar-nav">
             <?php if ($_hlRole === 'community'): ?>
                 <a href="/pages/community_portal.php">My requests</a>
                 <a href="/pages/community_portal.php?tab=new">New request</a>
             <?php elseif ($_hlRole === 'staff'): ?>
-                <a href="/pages/staff_portal.php">My requests</a>
+                <a href="/pages/staff_portal.php">Request queue</a>
                 <a href="/pages/staff_portal.php?tab=new">New request</a>
             <?php elseif ($_hlRole === 'admin'): ?>
                 <a href="/pages/admin_dashboard.php">Request queue</a>
                 <a href="/pages/admin_dashboard.php?filter=flagged">Flagged</a>
             <?php elseif ($_hlRole === 'leader'): ?>
                 <a href="/pages/leader_dashboard.php">Dashboard</a>
-                <a href="/pages/leader_dashboard.php?tab=reports">Reports</a>
+                <a href="/pages/leader_dashboard.php?tab=approvals">Approvals</a>
             <?php endif; ?>
         </div>
 
-        <!-- User info + sign out -->
         <div class="navbar-user">
             <div class="avatar avatar-sm avatar-<?= htmlspecialchars($_hlRole ?? 'community') ?>">
-                <?= strtoupper(substr($_hlUser['full_name'], 0, 1)) ?>
+                <?= htmlspecialchars($initials) ?>
             </div>
-            <span><?= htmlspecialchars($_hlUser['full_name']) ?></span>
+            <span><?= htmlspecialchars($_hlUser['name'] ?? '') ?></span>
             <span class="user-role"><?= htmlspecialchars($roleLabel) ?></span>
             <a href="/logout.php" class="btn btn-secondary btn-sm">Sign out</a>
         </div>
