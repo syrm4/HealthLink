@@ -1,9 +1,40 @@
 <?php
+// HealthLink — One-time database setup
+// Visit http://localhost/setup.php once to initialise the database.
+// Safe to re-run: drops and recreates all tables.
+
+$host = getenv('DB_HOST') ?: 'localhost';
+$port = getenv('DB_PORT') ?: '3306';   // MAMP Windows default (macOS: 8889)
+$name = getenv('DB_NAME') ?: 'healthlink';
+$user = getenv('DB_USER') ?: 'root';
+$pass = getenv('DB_PASS') ?: 'root';
+
+// Step 1: Connect WITHOUT a dbname so we can create the database if needed
+try {
+    $bootstrap = new PDO(
+        "mysql:host=$host;port=$port;charset=utf8mb4",
+        $user, $pass,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+    $bootstrap->exec("CREATE DATABASE IF NOT EXISTS `$name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $bootstrap->exec("USE `$name`");
+} catch (PDOException $e) {
+    die('<div style="font-family:sans-serif;padding:20px;color:red;">'
+        . '<strong>Could not connect to MySQL.</strong><br><br>'
+        . htmlspecialchars($e->getMessage()) . '<br><br>'
+        . '<strong>MAMP Windows:</strong> port 3306 &mdash; make sure MAMP is running.<br>'
+        . '<strong>MAMP macOS:</strong> change DB_PORT to 8889 or update the default in setup.php.'
+        . '</div>');
+}
+
+// Step 2: Now get the real PDO connection via getDB() (which also uses the healthlink db)
 require_once __DIR__ . '/config/db.php';
 $db = getDB();
+
+// Drop all tables in dependency order
 $db->exec('SET FOREIGN_KEY_CHECKS = 0');
 foreach (['status_history','requests','material_categories','service_area_zips','users'] as $t) {
-    $db->exec("DROP TABLE IF EXISTS $t");
+    $db->exec("DROP TABLE IF EXISTS `$t`");
 }
 $db->exec('SET FOREIGN_KEY_CHECKS = 1');
 
@@ -79,7 +110,6 @@ $hash = password_hash('pass123', PASSWORD_DEFAULT);
 $ins  = $db->prepare('INSERT INTO users (username,password_hash,full_name,email,phone,organization,role,preferred_lang) VALUES (?,?,?,?,?,?,?,?)');
 
 $users = [
-    // 10 Community partners (Maria persona)
     ['maria',     'Maria Gonzalez',  'maria@westsideclinic.org',         '801-555-0201', 'Westside Community Clinic',        'community', 'es'],
     ['rosa',      'Rosa Mendez',     'rosa@ogdencenter.org',              '801-555-0202', 'Ogden Community Center',           'community', 'es'],
     ['linda',     'Linda Ortiz',     'linda@southjordanhealth.org',       '801-555-0203', 'South Jordan Health Alliance',     'community', 'es'],
@@ -90,17 +120,14 @@ $users = [
     ['patricia',  'Patricia White',  'patricia@murrayfamilyclinic.org',   '801-555-0208', 'Murray Family Clinic',             'community', 'en'],
     ['james.lee', 'James Lee',       'james.lee@westvalleycommunity.org', '801-555-0209', 'West Valley Community Center',     'community', 'en'],
     ['angela',    'Angela Moore',    'angela@holladaywellness.org',       '801-555-0210', 'Holladay Wellness Coalition',      'community', 'en'],
-    // 5 Internal staff (James persona)
     ['james',     'James Thompson',  'james@imail.org',                   '801-555-0101', 'Intermountain Healthcare',         'staff',     'en'],
     ['emily',     'Emily Harris',    'emily@imail.org',                   '801-555-0102', 'Intermountain Healthcare',         'staff',     'en'],
     ['michael',   'Michael Clark',   'michael@imail.org',                 '801-555-0103', 'Intermountain Healthcare',         'staff',     'en'],
     ['jessica',   'Jessica Wang',    'jessica@imail.org',                 '801-555-0104', 'Intermountain Healthcare',         'staff',     'en'],
     ['kevin',     'Kevin Turner',    'kevin@imail.org',                   '801-555-0105', 'Intermountain Healthcare',         'staff',     'en'],
-    // 3 Admins (Sarah persona)
     ['sarah',     'Sarah Johnson',   'sarah@childrenshealth.org',         '801-555-0301', "Children's Health Community",      'admin',     'en'],
     ['rachel',    'Rachel Kim',      'rachel@childrenshealth.org',        '801-555-0302', "Children's Health Community",      'admin',     'en'],
     ['mark',      'Mark Davis',      'mark@childrenshealth.org',          '801-555-0303', "Children's Health Community",      'admin',     'en'],
-    // 3 Leaders (Dr. Chen persona)
     ['dr.chen',   'Dr. Linda Chen',  'dr.chen@childrenshealth.org',       '801-555-0401', "Children's Health \u2014 Leadership", 'leader',    'en'],
     ['dr.patel',  'Dr. Raj Patel',   'dr.patel@childrenshealth.org',      '801-555-0402', "Children's Health \u2014 Leadership", 'leader',    'en'],
     ['dr.nguyen', 'Dr. Anh Nguyen',  'dr.nguyen@childrenshealth.org',     '801-555-0403', "Children's Health \u2014 Leadership", 'leader',    'en'],
@@ -228,7 +255,7 @@ $allUsers = $db->query('SELECT username, role, full_name, preferred_lang FROM us
 <div class="container">
     <div class="card" style="max-width:720px; margin:40px auto;">
         <h2>HealthLink Setup Complete</h2>
-        <div class="alert alert-success">Database initialized. 21 users created, 8 sample requests inserted.</div>
+        <div class="alert alert-success">Database <strong><?= htmlspecialchars($name) ?></strong> initialised. 21 users created, 8 sample requests inserted.</div>
         <div class="alert alert-info">Default password for all accounts: <strong>pass123</strong></div>
         <div class="table-wrapper">
             <table>
@@ -246,7 +273,7 @@ $allUsers = $db->query('SELECT username, role, full_name, preferred_lang FROM us
             </table>
         </div>
         <div style="margin-top:var(--space-lg);">
-            <a href="/index.php" class="btn btn-primary">Go to login</a>
+            <a href="/index.php" class="btn btn-primary">Go to login &rarr;</a>
         </div>
     </div>
 </div>
