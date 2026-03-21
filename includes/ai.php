@@ -1,44 +1,46 @@
 <?php
 // HealthLink — OpenAI GPT-4o Integration
+// W3Schools best practices: credentials via getenv(), never hardcoded
+// Set OPENAI_API_KEY as an environment variable in MAMP or your server config.
 
-define('OPENAI_API_KEY', 'YOUR_OPENAI_API_KEY_HERE'); // Replace with your key
-define('OPENAI_MODEL',   'gpt-4o');
+define('OPENAI_MODEL', 'gpt-4o');
 
 /**
  * Classify a request using GPT-4o.
- * Returns array with classification, priority_score, routing, flags, in_service_area.
+ * Falls back to rule-based classification if no API key is set.
  */
 function classify_request(array $request, bool $in_service_area): array {
-    $prompt = build_classification_prompt($request, $in_service_area);
+    $apiKey = getenv('OPENAI_API_KEY') ?: '';
+    if (!$apiKey) {
+        return rule_based_classify($request, $in_service_area);
+    }
 
+    $prompt   = build_classification_prompt($request, $in_service_area);
     $response = openai_chat([
         [
             'role'    => 'system',
-            'content' => 'You are an AI assistant for HealthLink, a community health request management system. '
-                       . 'Your job is to classify incoming requests, assign a priority score, recommend a fulfillment pathway, '
-                       . 'and flag anything that needs special attention. Always respond with valid JSON only. No markdown, no explanation.'
+            'content' => 'You are an AI assistant for HealthLink, Intermountain Healthcare\'s Community Health Request Management System. '
+                       . 'Classify incoming requests, assign a priority score, recommend a fulfillment pathway, and flag anything needing attention. '
+                       . 'Always respond with valid JSON only. No markdown, no extra text.',
         ],
         [
             'role'    => 'user',
-            'content' => $prompt
-        ]
+            'content' => $prompt,
+        ],
     ]);
 
     $json = json_decode($response, true);
     if (!$json) {
-        return [
-            'classification'          => 'Unable to classify',
-            'priority_score'          => 5,
-            'routing_recommendation'  => $request['request_type'],
-            'flags'                   => null,
-            'in_service_area'         => $in_service_area,
-        ];
+        return rule_based_classify($request, $in_service_area);
     }
     return $json;
 }
 
 function build_classification_prompt(array $r, bool $in_service_area): string {
-    $area  = $in_service_area ? 'YES — within Salt Lake Valley service area' : 'NO — outside service area';
+    $area = $in_service_area
+        ? 'YES — within Salt Lake Valley service area'
+        : 'NO — outside service area';
+
     $type_labels = [
         'mailing'          => 'Mailing of education materials or safety devices',
         'presentation'     => 'In-Person or Virtual Presentation',
@@ -60,24 +62,57 @@ Request details:
 - Material category: {$r['material_category']}
 - Notes: {$r['notes']}
 
-Respond with this exact JSON structure:
+Respond with exactly this JSON structure:
 {
   "classification": "one sentence describing the request type and context",
   "priority_score": <integer 1-10, where 10 is most urgent>,
   "routing_recommendation": "one of: Mailing | In-person support | Presentation | Virtual presentation",
-  "flags": "comma-separated list of flags if any (e.g. Outside service area, High attendance, Spanish materials needed, Safety devices, Multi-site event), or null if none",
+  "flags": "comma-separated flags if any (e.g. Outside service area, High attendance, Spanish materials needed), or null",
   "in_service_area": <true or false>
 }
 PROMPT;
 }
 
+/** Rule-based fallback when no API key is available. */
+function rule_based_classify(array $r, bool $in_service_area): array {
+    $att   = (int) ($r['estimated_attendees'] ?? 0);
+    $score = 5;
+    if ($att > 200)      $score += 3;
+    elseif ($att > 100)  $score += 2;
+    elseif ($att > 50)   $score += 1;
+    if (!$in_service_area)                  $score += 2;
+    if ($r['request_type'] === 'inperson_support') $score += 1;
+    $score = min(10, $score);
+
+    $flags = [];
+    if (!$in_service_area) $flags[] = 'Outside service area — auto-routed to mailing';
+    if ($att > 200)        $flags[] = 'Very high attendance — prioritize';
+
+    $routing_map = [
+        'mailing'          => 'Mailing',
+        'presentation'     => 'Presentation',
+        'inperson_support' => 'In-person support',
+    ];
+
+    return [
+        'classification'         => ucfirst($r['request_type']) . ' request for ' . $r['audience_type'] . ' in ' . $r['city'],
+        'priority_score'         => $score,
+        'routing_recommendation' => $routing_map[$r['request_type']] ?? 'Mailing',
+        'flags'                  => empty($flags) ? null : implode('; ', $flags),
+        'in_service_area'        => $in_service_area,
+    ];
+}
+
+/** Check if a zip code is within the service area. */
 function check_service_area(string $zip, PDO $pdo): bool {
     $stmt = $pdo->prepare('SELECT COUNT(*) FROM service_area_zips WHERE zip_code = ?');
     $stmt->execute([$zip]);
     return (bool) $stmt->fetchColumn();
 }
 
+/** Send messages to OpenAI chat completions and return the text response. */
 function openai_chat(array $messages): string {
+    $apiKey = getenv('OPENAI_API_KEY') ?: '';
     $payload = json_encode([
         'model'       => OPENAI_MODEL,
         'messages'    => $messages,
@@ -92,8 +127,9 @@ function openai_chat(array $messages): string {
         CURLOPT_POSTFIELDS     => $payload,
         CURLOPT_HTTPHEADER     => [
             'Content-Type: application/json',
-            'Authorization: Bearer ' . OPENAI_API_KEY,
+            'Authorization: Bearer ' . $apiKey,
         ],
+        CURLOPT_TIMEOUT        => 15,
     ]);
     $result = curl_exec($ch);
     curl_close($ch);

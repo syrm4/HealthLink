@@ -1,11 +1,11 @@
 <?php
+// HealthLink — Login page
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/db.php';
-startSession();
 
-if (isLoggedIn()) {
-    $map = ['community'=>'community_portal','staff'=>'staff_portal','admin'=>'admin_dashboard','leader'=>'leader_dashboard'];
-    header('Location: /pages/' . ($map[$_SESSION['role']] ?? 'community_portal') . '.php');
+// auth.php already handles session_start() via its guard
+if (is_logged_in()) {
+    header('Location: /dashboard.php');
     exit;
 }
 
@@ -13,24 +13,16 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+
     if ($username && $password) {
-        $db = getDB();
+        $db   = getDB();
         $stmt = $db->prepare('SELECT * FROM users WHERE username = ? AND is_active = 1 LIMIT 1');
         $stmt->execute([$username]);
         $user = $stmt->fetch();
+
         if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role']    = $user['role'];
-            $_SESSION['user']    = [
-                'id'           => $user['id'],
-                'full_name'    => $user['full_name'],
-                'username'     => $user['username'],
-                'email'        => $user['email'],
-                'organization' => $user['organization'],
-                'role'         => $user['role'],
-            ];
-            $map = ['community'=>'community_portal','staff'=>'staff_portal','admin'=>'admin_dashboard','leader'=>'leader_dashboard'];
-            header('Location: /pages/' . ($map[$user['role']] ?? 'community_portal') . '.php');
+            login_user($user);  // sets all $_SESSION keys via auth.php
+            header('Location: /dashboard.php');
             exit;
         }
         $error = 'Invalid username or password.';
@@ -99,12 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <hr class="divider">
 
-        <p class="text-small text-muted mb-sm">Demo accounts &mdash; password: <strong>HealthLink2025!</strong></p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button onclick="fill('maria.gonzalez')" class="btn btn-secondary btn-sm">Community partner</button>
-            <button onclick="fill('james.thompson')" class="btn btn-secondary btn-sm">Staff</button>
-            <button onclick="fill('sarah.admin')"    class="btn btn-secondary btn-sm">Admin</button>
-            <button onclick="fill('dr.chen')"        class="btn btn-secondary btn-sm">Leader</button>
+        <p class="text-small text-muted mb-sm">Demo accounts &mdash; password: <strong>pass123</strong></p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button onclick="fill('maria')"   class="btn btn-secondary btn-sm">Community partner</button>
+            <button onclick="fill('james')"   class="btn btn-secondary btn-sm">Staff</button>
+            <button onclick="fill('sarah')"   class="btn btn-secondary btn-sm">Admin</button>
+            <button onclick="fill('dr.chen')" class="btn btn-secondary btn-sm">Leader</button>
         </div>
 
     </div>
@@ -113,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script>
 function fill(u) {
     document.getElementById('username').value = u;
-    document.getElementById('password').value = 'HealthLink2025!';
+    document.getElementById('password').value = 'pass123';
 }
 </script>
 </body>
