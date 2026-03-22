@@ -10,7 +10,11 @@
 
 Built for the **[2026 Generative AI Hackathon — Eccles Business Case Competition](https://eccles.utah.edu/programs/undergraduate/generative-ai-hackathon/)** — David Eccles School of Business, University of Utah.
 
-HealthLink replaces a manual email-and-spreadsheet workflow with a structured, intelligent web application. Community partners submit requests for health education materials, safety devices, and staffed event support. An AI agent automatically classifies, validates, and routes each request to the correct fulfillment pathway — with a human-in-the-loop approval process at every step.
+Intermountain Health's Community Health team was managing all incoming requests from community partners — for health education materials, safety devices, and staffed event support — through a manual process built on email and spreadsheets. As request volume grew, this workflow created real operational pain: requests were lost or delayed, there was no way to prioritize urgent events, staff had no visibility into the pipeline, and leadership had no data to inform resourcing decisions. Every request required manual triage, routing, and follow-up with no audit trail.
+
+The solution needed to support four distinct user types (community partners, internal staff, admins, and leadership), validate whether requests fell within the Salt Lake Valley service area, intelligently classify and prioritize submissions without manual review of every request, maintain a complete audit trail of every status change, and surface executive-level reporting for leadership — while remaining accessible to community organizations submitting without an account.
+
+HealthLink replaces that workflow with a structured, role-aware web application. When a community partner submits a request, the app validates their ZIP code against 24 Salt Lake Valley service area codes and triggers an Anthropic Claude AI classification — generating a priority score, routing recommendation, and flags for attention. Staff review the AI-prioritized queue, admins manage approvals and audit trails, and leadership see real-time metrics and AI-generated executive summaries. A rule-based fallback keeps the system running without an API key, and a human-in-the-loop approval step ensures AI recommendations are always reviewed before any action is taken.
 
 ---
 
