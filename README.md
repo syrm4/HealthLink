@@ -256,7 +256,7 @@ http://localhost/HealthLink/index.php
 
 ## Team
 
-Built by **Team HealthLink** in under 6 hours at the **[2026 Generative AI Hackathon — Eccles Business Case Competition](https://eccles.utah.edu/programs/undergraduate/generative-ai-hackathon/)**, David Eccles School of Business, University of Utah.
+Built by **Team ABJJ** in under 6 hours at the **[2026 Generative AI Hackathon — Eccles Business Case Competition](https://eccles.utah.edu/programs/undergraduate/generative-ai-hackathon/)**, David Eccles School of Business, University of Utah.
 
 | Name | Role |
 |---|---|
