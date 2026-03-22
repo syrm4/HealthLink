@@ -5,7 +5,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![PHP](https://img.shields.io/badge/PHP-8%2B-777BB4?logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
-![AI](https://img.shields.io/badge/AI-GPT--4o-412991?logo=openai&logoColor=white)
+![AI](https://img.shields.io/badge/AI-Claude%20Sonnet-CC785C?logo=anthropic&logoColor=white)
 ![Hackathon](https://img.shields.io/badge/2026%20GenAI-Hackathon-CC0000)
 
 Built for the **[2026 Generative AI Hackathon — Eccles Business Case Competition](https://eccles.utah.edu/programs/undergraduate/generative-ai-hackathon/)** — David Eccles School of Business, University of Utah.
@@ -31,7 +31,7 @@ HealthLink replaces a manual email-and-spreadsheet workflow with a structured, i
 ## Features
 
 - **Role-based access** — four distinct user experiences (community partner, staff, admin, leader)
-- **AI classification** — GPT-4o auto-tags every request with type, priority score, routing recommendation, and flags
+- **AI classification** — Claude auto-tags every request with type, priority score, routing recommendation, and flags
 - **Geographic routing** — zip code checked against Salt Lake Valley service area; out-of-area requests auto-routed to mailing
 - **Priority queue** — requests sorted by AI-generated urgency score (1–10)
 - **Admin dashboard** — real-time queue with filter, search, status updates, and full audit trail
@@ -49,7 +49,7 @@ HealthLink replaces a manual email-and-spreadsheet workflow with a structured, i
 | Frontend | HTML5, CSS3 (custom Intermountain Health brand stylesheet) |
 | Backend | PHP 8+ |
 | Database | MySQL 8 (via PDO with prepared statements) |
-| AI | OpenAI GPT-4o (with rule-based fallback) |
+| AI | Anthropic Claude (`claude-sonnet-4-6`, with rule-based fallback) |
 | Charts | Chart.js 4.4 |
 | Local dev | MAMP |
 
@@ -80,7 +80,7 @@ HealthLink/
 │   └── leader_dashboard.php   # Dr. Chen — charts, AI executive summary, approvals
 │
 ├── api/
-│   ├── ai_classify.php         # GPT-4o classification endpoint (with rule-based fallback)
+│   ├── ai_classify.php         # Claude classification endpoint (with rule-based fallback)
 │   ├── submit_request.php      # POST endpoint for new request submission
 │   └── update_status.php       # POST endpoint for status changes (admin/leader only)
 │
@@ -99,7 +99,7 @@ HealthLink/
 - [MAMP](https://www.mamp.info/) (or any PHP 8+ / MySQL 8 local server)
 - PHP 8.0 or higher
 - MySQL 8.0 or higher
-- An [OpenAI API key](https://platform.openai.com/) (optional — app falls back to rule-based classification without one)
+- An [Anthropic API key](https://console.anthropic.com/) (optional — app falls back to rule-based classification without one)
 
 ### Installation
 
@@ -121,9 +121,9 @@ HealthLink/
 
    This creates all database tables, seeds 21 demo users, and inserts 8 sample requests. You will see a confirmation table of all users when setup is complete.
 
-4. **(Optional) Set your OpenAI API key**
+4. **(Optional) Set your Anthropic API key**
 
-   Set the environment variable `OPENAI_API_KEY` in your MAMP environment, or edit `config/db.php` to hard-code it for local development only. Without a key, the app uses rule-based AI classification as a fallback.
+   Set the environment variable `ANTHROPIC_API_KEY` in your MAMP environment, or edit `config/db.php` to hard-code it for local development only. Without a key, the app uses rule-based classification as a fallback.
 
 5. **Go to the login page:**
 
@@ -180,7 +180,7 @@ Use the quick-fill buttons on the login page, or sign in manually with any usern
 
 | Feature | Description |
 |---|---|
-| **Auto-classification** | GPT-4o reads the request and generates a one-sentence classification |
+| **Auto-classification** | Claude reads the request and generates a one-sentence classification |
 | **Priority scoring** | Score of 1–10 based on attendance size, request type, service area, and flags |
 | **Routing recommendation** | Mailing / In-person support / Presentation |
 | **Flag detection** | Multi-site events, out-of-area zip codes, bilingual material needs, safety devices |
@@ -221,4 +221,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ---
 
-*Built with PHP, MySQL, OpenAI GPT-4o, and Chart.js. Designed for Intermountain Health — Community Health division.*
+*Built with PHP, MySQL, Anthropic Claude, and Chart.js. Designed for Intermountain Health — Community Health division.*

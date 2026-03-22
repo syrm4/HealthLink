@@ -7,7 +7,7 @@
         <p>A prototype built for the Intermountain Health Community Health team.</p>
         <div class="footer-bottom">
             <span>&copy; <?= date('Y') ?> HealthLink. Built for the Intermountain Health GenAI Hackathon.</span>
-            <span>Powered by Claude AI &amp; OpenAI GPT-4o</span>
+            <span>Powered by Anthropic Claude (claude-sonnet-4-6)</span>
         </div>
     </div>
 </footer>
