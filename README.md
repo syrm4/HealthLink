@@ -202,10 +202,10 @@ Built by **Team HealthLink** in under 6 hours at the **[2026 Generative AI Hacka
 
 | Name | Role |
 |---|---|
-| Athavan Elangko | Developer |
-| Bethany Chung | Developer |
+| [Athavan Elangko](https://github.com/atgko) | Developer |
+| [Bethany Chung](https://github.com/bethanalyst) | Developer |
 | RJ Spratling | Developer |
-| Joe Milner | Developer |
+| [Joe Milner](https://github.com/syrm4) | Developer |
 
 ---
 
