@@ -36,6 +36,7 @@ $flaggedCount = $db->query("SELECT COUNT(*) FROM requests WHERE ai_flags IS NOT 
 $outsideCount = $db->query('SELECT COUNT(*) FROM requests WHERE in_service_area = 0')->fetchColumn();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
+    verify_csrf_token();
     $rid     = (int)$_POST['request_id'];
     $status  = $_POST['new_status'] ?? '';
     $note    = trim($_POST['admin_note'] ?? '');
@@ -168,6 +169,7 @@ require_once __DIR__ . '/../includes/header.php';
                 <?php endif; ?>
             </div>
             <form method="POST" action="?filter=<?= urlencode($filter) ?>&id=<?= $selectedId ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
                 <input type="hidden" name="request_id" value="<?= $selectedId ?>">
                 <div class="form-grid">
                     <div class="form-group">

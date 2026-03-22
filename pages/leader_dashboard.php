@@ -26,6 +26,7 @@ $s = $db->prepare("SELECT r.*, u.full_name AS user_full_name FROM requests r LEF
 $s->execute(); $pendingApprovals = $s->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leader_action'])) {
+    verify_csrf_token();
     $rid    = (int)$_POST['request_id'];
     $action = $_POST['leader_action'];
     if ($rid && in_array($action, ['approve','return'], true)) {
@@ -179,10 +180,12 @@ require_once __DIR__ . '/../includes/header.php';
                         <td><span class="badge <?= $sb['class'] ?>"><?= $sb['label'] ?></span></td>
                         <td class="no-print">
                             <form method="POST" style="display:inline; margin-right:var(--space-xs);">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
                                 <input type="hidden" name="request_id" value="<?= $req['id'] ?>">
                                 <button type="submit" name="leader_action" value="approve" class="btn btn-success btn-sm">Approve</button>
                             </form>
                             <form method="POST" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
                                 <input type="hidden" name="request_id" value="<?= $req['id'] ?>">
                                 <button type="submit" name="leader_action" value="return" class="btn btn-danger btn-sm">Return to admin</button>
                             </form>

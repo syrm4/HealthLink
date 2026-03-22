@@ -52,3 +52,18 @@ function logout_user(): void {
     session_unset();
     session_destroy();
 }
+
+function generate_csrf_token(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verify_csrf_token(): void {
+    $token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+        http_response_code(403);
+        die('<h2 style="font-family:sans-serif;padding:20px;">Invalid request. Please go back and try again.</h2>');
+    }
+}
