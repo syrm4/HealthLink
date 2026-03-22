@@ -93,7 +93,7 @@ HealthLink/
 └── assets/
     ├── style.css               # Full brand stylesheet (Intermountain Health guidelines)
     └── images/
-        └── ihcHEALTHLINK.png  # Logo
+        └── ihcHEALTHLINK.png  # Logo (1.4 MB — consider optimizing with Squoosh or TinyPNG before production use)
 ```
 
 ---
