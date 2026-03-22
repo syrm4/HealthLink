@@ -1,6 +1,7 @@
 <?php
 // HealthLink — Admin Dashboard (Sarah persona)
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../config/db.php';
 require_role('admin', 'leader');
 
@@ -58,13 +59,6 @@ $statusBadge = [
 ];
 $typeLabel = ['mailing'=>'Mailing','presentation'=>'Presentation','inperson_support'=>'In-person support'];
 $typeBadge = ['mailing'=>'badge-mailing','presentation'=>'badge-presentation','inperson_support'=>'badge-inperson'];
-
-function priorityClass(int $score): string {
-    if ($score >= 9) return 'priority-urgent';
-    if ($score >= 7) return 'priority-high';
-    if ($score >= 5) return 'priority-medium';
-    return 'priority-low';
-}
 
 $selectedId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $selected   = null;

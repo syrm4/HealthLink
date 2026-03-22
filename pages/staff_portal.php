@@ -1,6 +1,7 @@
 <?php
 // HealthLink — Staff Portal (James persona)
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../config/db.php';
 require_role('staff', 'admin', 'leader');
 
@@ -32,13 +33,6 @@ $requests = $stmt->fetchAll();
 
 $newCount  = $db->query("SELECT COUNT(*) FROM requests WHERE status = 'submitted'")->fetchColumn();
 $flagCount = $db->query("SELECT COUNT(*) FROM requests WHERE ai_flags IS NOT NULL AND ai_flags != ''")->fetchColumn();
-
-function priorityClass(int $score): string {
-    if ($score >= 9) return 'priority-urgent';
-    if ($score >= 7) return 'priority-high';
-    if ($score >= 5) return 'priority-medium';
-    return 'priority-low';
-}
 
 $statusBadge = [
     'submitted'         => ['label' => 'Submitted',    'class' => 'badge-submitted'],
