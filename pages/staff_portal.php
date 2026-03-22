@@ -101,7 +101,6 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Main content -->
         <div>
-            <!-- Filter bar: pills + count + search — consistent with admin dashboard -->
             <div class="filter-bar">
                 <?php foreach ([
                     'all'       => 'All',
@@ -160,7 +159,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <span class="td-muted">None</span>
                                 <?php endif; ?>
                             </td>
-                            <td><a href="/pages/admin_dashboard.php?id=<?= $req['id'] ?>" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">Send to admin</a></td>
+                            <td><a href="<?= BASE_PATH ?>/pages/admin_dashboard.php?id=<?= $req['id'] ?>" class="btn btn-secondary btn-sm" onclick="event.stopPropagation();">Send to admin</a></td>
                         </tr>
                         <?php endforeach; ?>
                         <?php endif; ?>
@@ -211,7 +210,7 @@ require_once __DIR__ . '/../includes/header.php';
                 </div>
 
                 <div class="d-flex gap-sm">
-                    <a href="/pages/admin_dashboard.php?id=<?= $selected['id'] ?>" class="btn btn-primary">Send to admin (Sarah)</a>
+                    <a href="<?= BASE_PATH ?>/pages/admin_dashboard.php?id=<?= $selected['id'] ?>" class="btn btn-primary">Send to admin (Sarah)</a>
                     <a href="?filter=<?= urlencode($filter) ?>" class="btn btn-secondary">Close detail</a>
                 </div>
             </div>

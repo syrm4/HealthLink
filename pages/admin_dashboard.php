@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     if ($rid && in_array($status, $allowed, true)) {
         $db->prepare('UPDATE requests SET status = ?, admin_notes = ?, updated_at = NOW() WHERE id = ?')->execute([$status, $note ?: null, $rid]);
         $db->prepare('INSERT INTO status_history (request_id, status, changed_by, notes) VALUES (?,?,?,?)')->execute([$rid, $status, $user['name'], $note ?: null]);
-        header('Location: /pages/admin_dashboard.php?filter=' . urlencode($filter) . '&id=' . $rid);
+        header('Location: ' . BASE_PATH . '/pages/admin_dashboard.php?filter=' . urlencode($filter) . '&id=' . $rid);
         exit;
     }
 }

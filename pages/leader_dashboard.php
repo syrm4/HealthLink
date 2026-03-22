@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['leader_action'])) {
             $db->prepare("UPDATE requests SET status = 'in_review', updated_at = NOW() WHERE id = ?")->execute([$rid]);
             $db->prepare('INSERT INTO status_history (request_id, status, changed_by, notes) VALUES (?,?,?,?)')->execute([$rid, 'in_review', $user['name'], 'Returned to admin by leadership']);
         }
-        header('Location: /pages/leader_dashboard.php?tab=approvals&tf=' . $tf);
+        header('Location: ' . BASE_PATH . '/pages/leader_dashboard.php?tab=approvals&tf=' . $tf);
         exit;
     }
 }
