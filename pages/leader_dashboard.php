@@ -92,6 +92,12 @@ require_once __DIR__ . '/../includes/header.php';
 
         <?php if ($tab === 'dashboard'): ?>
 
+        <!-- Illustrative data disclaimer -->
+        <div class="alert alert-warning no-print" style="display:flex; align-items:center; gap:var(--space-sm); margin-bottom:var(--space-md);">
+            <span style="font-size:1.1em;">⚠️</span>
+            <span><strong>Demo data:</strong> Charts and AI summary cards show illustrative projections for hackathon demonstration purposes. Metric cards (total requests, approval rate, staff deployments) reflect live database values.</span>
+        </div>
+
         <div class="metric-grid">
             <div class="metric-card"><p class="metric-label">Total requests</p><p class="metric-value"><?= $totalCount ?></p><p class="metric-sub">Last <?= $tf ?> days</p></div>
             <div class="metric-card metric-success"><p class="metric-label">Approval rate</p><p class="metric-value"><?= $approvalRate ?>%</p><p class="metric-sub">Approved or fulfilled</p></div>
@@ -109,7 +115,7 @@ require_once __DIR__ . '/../includes/header.php';
                     <button class="btn btn-sm btn-secondary" onclick="setPie('gender')">Gender</button>
                 </div>
             </div>
-            <p class="text-muted text-small">Who is being served by HealthLink requests</p>
+            <p class="text-muted text-small">Illustrative projections &mdash; who is being served by HealthLink requests</p>
             <div style="max-width:480px; margin:0 auto;"><canvas id="pieChart" height="240"></canvas></div>
         </div>
         <?php endif; ?>
@@ -117,7 +123,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php if ($view === 'all' || $view === 'trends'): ?>
         <div class="card">
             <div class="card-header"><h3>Predictive trends</h3></div>
-            <p class="text-muted text-small">Projected inventory, geographic demand, and staff deployment days over 6 months</p>
+            <p class="text-muted text-small">Illustrative projections &mdash; projected inventory, geographic demand, and staff deployment days over 6 months</p>
             <canvas id="lineChart" height="120"></canvas>
         </div>
         <?php endif; ?>
@@ -125,7 +131,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php if ($view === 'all' || $view === 'staffing'): ?>
         <div class="card">
             <div class="card-header"><h3>Staff capacity vs demand</h3></div>
-            <p class="text-muted text-small">Monthly comparison of available staff days versus event demand</p>
+            <p class="text-muted text-small">Illustrative projections &mdash; monthly comparison of available staff days versus event demand</p>
             <canvas id="barChart" height="100"></canvas>
         </div>
         <?php endif; ?>
@@ -134,7 +140,7 @@ require_once __DIR__ . '/../includes/header.php';
         <div class="card">
             <div class="card-header">
                 <h3>AI executive summary</h3>
-                <small class="text-muted">Based on approved requests &mdash; last <?= $tf ?> days</small>
+                <small class="text-muted">Illustrative projections &mdash; last <?= $tf ?> days</small>
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:var(--space-md); margin-bottom:var(--space-md);">
                 <div class="alert alert-success"><strong>Staffing</strong><br>Current staff levels are sufficient. <?= $staffCount ?> deployment<?= $staffCount !== 1 ? 's' : '' ?> approved. No shortfall detected.</div>
