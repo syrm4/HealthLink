@@ -2,6 +2,12 @@
 
 > AI-Powered Community Health Request Management System
 
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![PHP](https://img.shields.io/badge/PHP-8%2B-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
+![AI](https://img.shields.io/badge/AI-GPT--4o-412991?logo=openai&logoColor=white)
+![Hackathon](https://img.shields.io/badge/2026%20GenAI-Hackathon-CC0000)
+
 Built for the **[2026 Generative AI Hackathon — Eccles Business Case Competition](https://eccles.utah.edu/programs/undergraduate/generative-ai-hackathon/)** — David Eccles School of Business, University of Utah.
 
 HealthLink replaces a manual email-and-spreadsheet workflow with a structured, intelligent web application. Community partners submit requests for health education materials, safety devices, and staffed event support. An AI agent automatically classifies, validates, and routes each request to the correct fulfillment pathway — with a human-in-the-loop approval process at every step.
