@@ -23,6 +23,8 @@ HealthLink replaces a manual email-and-spreadsheet workflow with a structured, i
 - [Demo Accounts](#demo-accounts)
 - [User Roles](#user-roles)
 - [AI Features](#ai-features)
+- [Request Types](#request-types)
+- [Running on Windows (WAMP)](#running-on-windows-wamp)
 - [Team](#team)
 - [License](#license)
 
@@ -203,6 +205,48 @@ Matching the original Intermountain Health Microsoft Form:
 | `mailing` | Mailing of education materials or safety devices |
 | `presentation` | In-person or virtual presentation |
 | `inperson_support` | Community Health in-person support at event with education materials or safety devices |
+
+---
+
+## Running on Windows (WAMP)
+
+The app is configured for MAMP on macOS by default. To run it locally on Windows using [WAMP](https://www.wampserver.com/), two small changes are required.
+
+### 1. Update `config/db.php`
+
+Change the default MySQL port from `8889` (MAMP macOS) to `3306` (WAMP Windows):
+
+```php
+// Change this line:
+$port = getenv('DB_PORT') ?: '8889';   // MAMP macOS default
+
+// To this:
+$port = getenv('DB_PORT') ?: '3306';   // WAMP Windows default
+```
+
+### 2. Clone into your WAMP webroot
+
+```bash
+git clone https://github.com/syrm4/HealthLink.git C:/wamp64/www/HealthLink
+```
+
+### 3. Start WAMP
+
+Ensure Apache and MySQL are running (the WAMP system tray icon should be green).
+
+### 4. Run the setup script
+
+```
+http://localhost/HealthLink/setup.php
+```
+
+### 5. Go to the login page
+
+```
+http://localhost/HealthLink/index.php
+```
+
+> **Note:** WAMP's default Apache port is **80** (no port number needed in the URL) and MySQL runs on port **3306**. If you have customised WAMP's ports, set the `DB_PORT` environment variable accordingly or edit `config/db.php` directly.
 
 ---
 
