@@ -51,7 +51,7 @@ HealthLink replaces a manual email-and-spreadsheet workflow with a structured, i
 | Database | MySQL 8 (via PDO with prepared statements) |
 | AI | Anthropic Claude (`claude-sonnet-4-6`, with rule-based fallback) |
 | Charts | Chart.js 4.4 |
-| Local dev | MAMP |
+| Local dev | MAMP (macOS) |
 
 ---
 
@@ -96,27 +96,27 @@ HealthLink/
 
 ### Prerequisites
 
-- [MAMP](https://www.mamp.info/) (or any PHP 8+ / MySQL 8 local server)
+- [MAMP](https://www.mamp.info/) (macOS — tested with MAMP 6+)
 - PHP 8.0 or higher
 - MySQL 8.0 or higher
 - An [Anthropic API key](https://console.anthropic.com/) (optional — app falls back to rule-based classification without one)
 
 ### Installation
 
-1. **Clone the repository into your MAMP webroot**
+1. **Clone the repository into a subfolder of your MAMP webroot**
 
    ```bash
-   git clone https://github.com/syrm4/HealthLink.git /Applications/MAMP/htdocs/
+   git clone https://github.com/syrm4/HealthLink.git /Applications/MAMP/htdocs/HealthLink
    ```
 
-   > **Important:** Clone directly into `htdocs/` (not a subfolder). The app uses absolute URL paths.
+   > **Note:** MAMP's default Apache port is **8888** on macOS and MySQL runs on port **8889**. Both are already set as defaults in `config/db.php`.
 
-2. **Start MAMP** — ensure Apache and MySQL are running.
+2. **Start MAMP** — ensure Apache and MySQL are running (both indicators green).
 
 3. **Run the setup script** in your browser:
 
    ```
-   http://localhost/setup.php
+   http://localhost:8888/HealthLink/setup.php
    ```
 
    This creates all database tables, seeds 21 demo users, and inserts 8 sample requests. You will see a confirmation table of all users when setup is complete.
@@ -128,7 +128,7 @@ HealthLink/
 5. **Go to the login page:**
 
    ```
-   http://localhost/index.php
+   http://localhost:8888/HealthLink/index.php
    ```
 
 ---
