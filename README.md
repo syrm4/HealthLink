@@ -68,8 +68,12 @@ HealthLink/
 ├── config/
 │   └── db.php                  # PDO connection (reads env vars or defaults)
 │
+├── database/
+│   └── healthlink_mysql.sql    # Annotated MySQL schema reference
+│
 ├── includes/
-│   ├── auth.php                # Session helpers: is_logged_in, require_role, login_user
+│   ├── auth.php                # Session helpers: is_logged_in, require_role, login_user, CSRF
+│   ├── helpers.php             # Shared UI helpers: priorityClass()
 │   ├── header.php              # Shared navbar (role-aware nav links)
 │   └── footer.php              # Shared footer
 │
