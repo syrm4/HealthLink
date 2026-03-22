@@ -25,46 +25,6 @@ $statusBadge = [
     'fulfilled'         => ['label' => 'Fulfilled',   'class' => 'badge-fulfilled'],
 ];
 
-$formSuccess = false;
-$formError   = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_request'])) {
-    $eventName   = trim($_POST['event_name']   ?? '');
-    $eventDate   = trim($_POST['event_date']   ?? '');
-    $reqType     = trim($_POST['request_type'] ?? '');
-    $contactName = trim($_POST['contact_name'] ?? '');
-    $contactEmail= trim($_POST['contact_email']?? '');
-    $org         = trim($_POST['org']          ?? '');
-    $attendees   = (int)($_POST['attendees']   ?? 0);
-    $notes       = trim($_POST['notes']        ?? '');
-
-    if (!$eventName || !$eventDate || !$reqType || !$contactName || !$contactEmail) {
-        $formError = 'Please fill in all required fields.';
-    } else {
-        $db   = getDB();
-        $stmt = $db->prepare(
-            'INSERT INTO requests
-             (user_id, requestor_name, requestor_email, organization,
-              event_name, event_date, estimated_attendees,
-              request_type, material_category, notes,
-              status, city, zip_code)
-             VALUES (?,?,?,?,?,?,?,?,?,?,\'submitted\',\'TBD\',\'00000\')'
-        );
-        $stmt->execute([
-            $isLoggedIn ? $user['id'] : null,
-            htmlspecialchars($contactName),
-            htmlspecialchars($contactEmail),
-            htmlspecialchars($org),
-            htmlspecialchars($eventName),
-            $eventDate,
-            $attendees,
-            htmlspecialchars($reqType),
-            'Educational materials',
-            htmlspecialchars($notes),
-        ]);
-        $formSuccess = true;
-    }
-}
-
 require_once __DIR__ . '/../includes/header.php';
 ?>
 
@@ -81,7 +41,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php if (!$isLoggedIn): ?>
         <div class="card mb-md">
             <div class="d-flex gap-md" style="justify-content:center; flex-wrap:wrap;">
-                <a href="/index.php" class="btn btn-secondary">Sign in to my account</a>
+                <a href="<?= BASE_PATH ?>/index.php" class="btn btn-secondary">Sign in to my account</a>
                 <a href="?tab=new" class="btn btn-primary">Create account &amp; request</a>
                 <a href="?tab=guest" class="btn btn-dark">Continue as guest</a>
             </div>
@@ -95,12 +55,8 @@ require_once __DIR__ . '/../includes/header.php';
         </div>
         <?php endif; ?>
 
-        <?php if ($formSuccess): ?>
-        <div class="alert alert-success"><strong>Request submitted!</strong> A confirmation email has been sent. You will be notified when your status changes.</div>
-        <?php endif; ?>
-        <?php if ($formError): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($formError) ?></div>
-        <?php endif; ?>
+        <!-- Success / error alerts injected by JS after submission -->
+        <div id="form-alert" style="display:none;"></div>
 
         <!-- DASHBOARD -->
         <div id="tab-dashboard" class="tab-pane <?= ($isLoggedIn && $tab !== 'new' && $tab !== 'guest') ? 'active' : '' ?>">
@@ -129,11 +85,11 @@ require_once __DIR__ . '/../includes/header.php';
                         <thead><tr><th>Event</th><th>Date</th><th>Type</th><th>Participants</th><th>Status</th></tr></thead>
                         <tbody>
                         <?php foreach ($myRequests as $req):
-                            $sb  = $statusBadge[$req['status']] ?? ['label' => ucfirst($req['status']), 'class' => 'badge-submitted'];
+                            $sb    = $statusBadge[$req['status']] ?? ['label' => ucfirst($req['status']), 'class' => 'badge-submitted'];
                             $tlMap = ['mailing'=>'Mailing','presentation'=>'Presentation','inperson_support'=>'In-person support'];
-                            $tl  = $tlMap[$req['request_type']] ?? $req['request_type'];
+                            $tl    = $tlMap[$req['request_type']] ?? $req['request_type'];
                             $tbMap = ['mailing'=>'mailing','presentation'=>'presentation','inperson_support'=>'inperson'];
-                            $tb  = $tbMap[$req['request_type']] ?? 'submitted';
+                            $tb    = $tbMap[$req['request_type']] ?? 'submitted';
                         ?>
                         <tr>
                             <td class="td-name"><?= htmlspecialchars($req['event_name']) ?></td>
@@ -159,12 +115,12 @@ require_once __DIR__ . '/../includes/header.php';
                     <small class="text-muted">Fields marked <span style="color:var(--color-vivid-red)">*</span> are required</small>
                 </div>
                 <div class="alert alert-ai"><div class="ai-indicator"></div><div>AI assist active &mdash; your request will be automatically classified and routed on submission.</div></div>
-                <form method="POST" action="?tab=new">
+                <form id="new-request-form">
                     <h4 class="mb-md">Contact information</h4>
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Contact name <span class="required">*</span></label>
-                            <input type="text" name="contact_name" placeholder="Your full name" required>
+                            <input type="text" name="requestor_name" placeholder="Your full name" required>
                         </div>
                         <div class="form-group">
                             <label>Position / title <span class="required">*</span></label>
@@ -172,15 +128,15 @@ require_once __DIR__ . '/../includes/header.php';
                         </div>
                         <div class="form-group">
                             <label>Phone number <span class="required">*</span></label>
-                            <input type="tel" name="contact_phone" placeholder="801-555-0000" required>
+                            <input type="tel" name="requestor_phone" placeholder="801-555-0000" required>
                         </div>
                         <div class="form-group">
                             <label>Email address <span class="required">*</span></label>
-                            <input type="email" name="contact_email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
+                            <input type="email" name="requestor_email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" required>
                         </div>
                         <div class="form-group form-full">
                             <label>Organization <span class="required">*</span></label>
-                            <input type="text" name="org" value="<?= htmlspecialchars($user['org'] ?? '') ?>" required>
+                            <input type="text" name="organization" value="<?= htmlspecialchars($user['org'] ?? '') ?>" required>
                         </div>
                     </div>
                     <hr class="divider">
@@ -196,7 +152,27 @@ require_once __DIR__ . '/../includes/header.php';
                         </div>
                         <div class="form-group">
                             <label>Number of participants <span class="required">*</span></label>
-                            <input type="number" name="attendees" placeholder="e.g. 75" min="1" required>
+                            <input type="number" name="estimated_attendees" placeholder="e.g. 75" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" name="city" placeholder="e.g. Salt Lake City" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP code <span class="required">*</span></label>
+                            <input type="text" name="zip_code" placeholder="e.g. 84101" maxlength="10" required>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Audience type <span class="required">*</span></label>
+                            <select name="audience_type" required>
+                                <option value="">Select...</option>
+                                <option value="General community">General community</option>
+                                <option value="Youth / school-age">Youth / school-age</option>
+                                <option value="Seniors">Seniors</option>
+                                <option value="Families">Families</option>
+                                <option value="Healthcare workers">Healthcare workers</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div class="form-group form-full">
                             <label>Type of support requested <span class="required">*</span></label>
@@ -209,13 +185,23 @@ require_once __DIR__ . '/../includes/header.php';
                             <p class="field-hint">This determines how your request will be fulfilled and routed.</p>
                         </div>
                         <div class="form-group form-full">
+                            <label>Materials needed <span class="required">*</span></label>
+                            <select name="material_category" required>
+                                <option value="">Select...</option>
+                                <option value="Educational materials">Educational materials</option>
+                                <option value="Safety devices">Safety devices</option>
+                                <option value="Educational materials and safety devices">Educational materials and safety devices</option>
+                                <option value="Presentation only">Presentation only</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-full">
                             <label>Additional notes</label>
                             <textarea name="notes" placeholder="Language preferences, special requirements, accessibility needs..."></textarea>
                         </div>
                     </div>
                     <div class="d-flex" style="justify-content:flex-end; gap:var(--space-sm); margin-top:var(--space-md);">
                         <a href="?tab=dashboard" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" name="submit_request" class="btn btn-primary">Submit request</button>
+                        <button type="submit" class="btn btn-primary">Submit request</button>
                     </div>
                 </form>
             </div>
@@ -228,16 +214,36 @@ require_once __DIR__ . '/../includes/header.php';
                     <h3>Guest request &mdash; no account needed</h3>
                     <span class="badge badge-role-community">Guest</span>
                 </div>
-                <form method="POST" action="?tab=guest">
+                <form id="guest-request-form">
                     <div class="form-grid">
-                        <div class="form-group"><label>Contact name <span class="required">*</span></label><input type="text" name="contact_name" placeholder="Your full name" required></div>
+                        <div class="form-group"><label>Contact name <span class="required">*</span></label><input type="text" name="requestor_name" placeholder="Your full name" required></div>
                         <div class="form-group"><label>Position / title <span class="required">*</span></label><input type="text" name="contact_title" placeholder="Your role" required></div>
-                        <div class="form-group"><label>Phone <span class="required">*</span></label><input type="tel" name="contact_phone" placeholder="801-555-0000" required></div>
-                        <div class="form-group"><label>Email <span class="required">*</span></label><input type="email" name="contact_email" required></div>
-                        <div class="form-group form-full"><label>Organization</label><input type="text" name="org" placeholder="Your organization"></div>
+                        <div class="form-group"><label>Phone <span class="required">*</span></label><input type="tel" name="requestor_phone" placeholder="801-555-0000" required></div>
+                        <div class="form-group"><label>Email <span class="required">*</span></label><input type="email" name="requestor_email" required></div>
+                        <div class="form-group form-full"><label>Organization</label><input type="text" name="organization" placeholder="Your organization"></div>
                         <div class="form-group form-full"><label>Event name <span class="required">*</span></label><input type="text" name="event_name" required></div>
                         <div class="form-group"><label>Event date <span class="required">*</span></label><input type="date" name="event_date" required></div>
-                        <div class="form-group"><label>Number of participants <span class="required">*</span></label><input type="number" name="attendees" min="1" required></div>
+                        <div class="form-group"><label>Number of participants <span class="required">*</span></label><input type="number" name="estimated_attendees" min="1" required></div>
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" name="city" placeholder="e.g. Salt Lake City" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP code <span class="required">*</span></label>
+                            <input type="text" name="zip_code" placeholder="e.g. 84101" maxlength="10" required>
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Audience type <span class="required">*</span></label>
+                            <select name="audience_type" required>
+                                <option value="">Select...</option>
+                                <option value="General community">General community</option>
+                                <option value="Youth / school-age">Youth / school-age</option>
+                                <option value="Seniors">Seniors</option>
+                                <option value="Families">Families</option>
+                                <option value="Healthcare workers">Healthcare workers</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
                         <div class="form-group form-full">
                             <label>Type of support <span class="required">*</span></label>
                             <select name="request_type" required>
@@ -247,14 +253,24 @@ require_once __DIR__ . '/../includes/header.php';
                                 <option value="inperson_support">Community Health in-person support at event</option>
                             </select>
                         </div>
+                        <div class="form-group form-full">
+                            <label>Materials needed <span class="required">*</span></label>
+                            <select name="material_category" required>
+                                <option value="">Select...</option>
+                                <option value="Educational materials">Educational materials</option>
+                                <option value="Safety devices">Safety devices</option>
+                                <option value="Educational materials and safety devices">Educational materials and safety devices</option>
+                                <option value="Presentation only">Presentation only</option>
+                            </select>
+                        </div>
                         <div class="form-group form-full"><label>Additional notes</label><textarea name="notes" placeholder="Language preferences, special requirements..."></textarea></div>
                     </div>
                     <div class="d-flex" style="justify-content:flex-end; margin-top:var(--space-md);">
-                        <button type="submit" name="submit_request" class="btn btn-primary">Submit request</button>
+                        <button type="submit" class="btn btn-primary">Submit request</button>
                     </div>
                 </form>
                 <hr class="divider">
-                <p class="text-muted text-small">Already have an account? <a href="/index.php">Sign in</a> to track your request status.</p>
+                <p class="text-muted text-small">Already have an account? <a href="<?= BASE_PATH ?>/index.php">Sign in</a> to track your request status.</p>
             </div>
         </div>
 
@@ -270,6 +286,52 @@ function switchTab(name) {
     event.target.classList.add('active');
     history.replaceState(null, '', '?tab=' + name);
 }
+
+function showAlert(type, message) {
+    var el = document.getElementById('form-alert');
+    el.className = 'alert alert-' + type;
+    el.innerHTML = message;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function submitForm(formId) {
+    var form = document.getElementById(formId);
+    var btn  = form.querySelector('button[type="submit"]');
+    btn.disabled    = true;
+    btn.textContent = 'Submitting...';
+
+    fetch('<?= BASE_PATH ?>/api/submit_request.php', {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            form.reset();
+            showAlert('success', '<strong>Request submitted!</strong> Your request has been received and is being reviewed. You will be notified when your status changes.');
+        } else {
+            showAlert('danger', '<strong>Submission error:</strong> ' + (data.error || 'Please check all required fields and try again.'));
+            btn.disabled    = false;
+            btn.textContent = 'Submit request';
+        }
+    })
+    .catch(function() {
+        showAlert('danger', '<strong>Network error:</strong> Could not reach the server. Please try again.');
+        btn.disabled    = false;
+        btn.textContent = 'Submit request';
+    });
+}
+
+document.getElementById('new-request-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitForm('new-request-form');
+});
+
+document.getElementById('guest-request-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitForm('guest-request-form');
+});
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
